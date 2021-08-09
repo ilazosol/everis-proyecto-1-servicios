@@ -60,6 +60,7 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 			Mono<ResponseEntity<Map<String,Object>>> res = client.flatMap(c -> {
 				Integer cAhorro = 0;
 				Integer cCorriente = 0;
+				Integer cPlazoFijo = 0;
 				
 				System.out.println(c.toString());
 				
@@ -71,6 +72,9 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 						if(acc.getAccount_type().equals("Cuenta Corriente")) {
 							cCorriente++;
 						}
+						if(acc.getAccount_type().equals("Cuenta Plazo Fijo")) {
+							cPlazoFijo++;
+						}
 						if(account.getAccount_type().equals("Cuenta de Ahorro") && cAhorro>0) {
 							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta de ahorro");
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
@@ -79,20 +83,21 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta corriente");
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 						}
+						if(account.getAccount_type().equals("Cuenta Plazo Fijo") && cPlazoFijo>0) {
+							response.put("mensaje", "No puede crear la cuenta, un cliente no puede tener más de una cuenta a plazo fijo");
+							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
+						}
 					}
 					
 				}else if(c.getClient_type().getDescription().equals("Empresarial")) {
-					for (CreateAccountDocument acc : accounts) {
-						if(acc.getAccount_type().equals("Cuenta de Ahorro")) {
-							response.put("mensaje", "Un usuario empresarial no puede tener cuenta de ahorro");
-							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-						}
-						if(acc.getAccount_type().equals("Cuenta Plazo Fijo")) {
-							response.put("mensaje", "Un usuario empresarial no puede tener cuenta a plazo fijo");
-							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
-						}
+					if(account.getAccount_type().equals("Cuenta de Ahorro")) {
+						response.put("mensaje", "Un usuario empresarial no puede tener cuenta de ahorro");
+						return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 					}
-				
+					if(account.getAccount_type().equals("Cuenta Plazo Fijo")) {
+						response.put("mensaje", "Un usuario empresarial no puede tener cuenta a plazo fijo");
+						return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
+					}
 				}else if(!c.getClient_type().getDescription().equals("Empresarial") && !c.getClient_type().getDescription().equals("Personal")) {
 					response.put("mensaje", "Ingreso un tipo de cliente incorrecto");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
@@ -106,9 +111,9 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 					Date date = Calendar.getInstance().getTime();
 					FixedTermDocument fixedTerm = FixedTermDocument.builder()
 							.saldo(account.getMount())
-							.fecha_creacion(dateFormat.format(date))
-							.id_cliente(id)
-							.dia_retiro(diaRetiro)
+							.fechaCreacion(dateFormat.format(date))
+							.idCliente(id)
+							.diaRetiro(diaRetiro)
 							.build();
 					
 					

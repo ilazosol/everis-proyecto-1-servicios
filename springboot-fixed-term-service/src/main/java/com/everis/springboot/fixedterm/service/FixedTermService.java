@@ -15,5 +15,7 @@ public interface FixedTermService {
 	Mono<ResponseEntity<Map<String,Object>>> depositar(String idCuenta,Double cantidad);
 	
 	Mono<ResponseEntity<Map<String,Object>>> retirar(String idCuenta,Double cantidad);
+	
+	Mono<ResponseEntity<Map<String,Object>>> consultarSaldo(String idCliente);
 
 }

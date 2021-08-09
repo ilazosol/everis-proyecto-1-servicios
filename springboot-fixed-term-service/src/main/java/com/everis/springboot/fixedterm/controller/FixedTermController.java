@@ -6,11 +6,11 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.everis.springboot.fixedterm.documents.FixedTermDocument;
 import com.everis.springboot.fixedterm.service.FixedTermService;
 
@@ -38,6 +38,11 @@ public class FixedTermController {
 	public Mono<ResponseEntity<Map<String,Object>>> retirement(@PathVariable String id, @PathVariable Double amount){
 		System.out.println("Entro al metodo guardar cuenta");
 		return fixedTermService.retirar(id, amount);
+	}
+	
+	@GetMapping("/getBalance/{id}")
+	public Mono<ResponseEntity<Map<String,Object>>> getBalance(@PathVariable("id") String id) {
+		return fixedTermService.consultarSaldo(id);
 	}
 
 }
