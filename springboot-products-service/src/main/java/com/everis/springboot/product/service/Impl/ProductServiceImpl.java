@@ -114,8 +114,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Mono<ProductDocument> findProductsById(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return productDao.findById(id);
 	}
 
 	@Override

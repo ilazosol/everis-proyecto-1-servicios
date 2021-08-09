@@ -33,7 +33,11 @@ public class ProductController {
 		System.out.println("Entro al metodo guardar");
 		return productService.saveProduct(id,product);
 	}
-	
+
+	@GetMapping("/product/{id}")
+	public Mono<ProductDocument> getProduct(@PathVariable("id") String id) {
+		return productService.findProductsById(id);
+	}
 	
 	
 
