@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.everis.springboot.createaccount.document.CreateAccountDocument;
 import com.everis.springboot.createaccount.service.CreateAccountService;
@@ -29,6 +26,11 @@ public class CreateAccountController {
 	public Mono<ResponseEntity<Map<String,Object>>> saveAccount(@PathVariable String id,@Valid @RequestBody CreateAccountDocument document){
 		System.out.println("Entro al metodo guardar cuenta");
 		return accountService.saveAccount(id,document);
+	}
+
+	@GetMapping("/findAccount/{id}")
+	public Mono<CreateAccountDocument> getProduct(@PathVariable("id") String id) {
+		return accountService.findAccountsById(id);
 	}
 
 }

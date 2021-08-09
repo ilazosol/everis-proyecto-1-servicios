@@ -38,6 +38,11 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 	private Integer diaRetiro;
 
 	@Override
+	public Mono<CreateAccountDocument> findAccountsById(String id) {
+		return createAccountDao.findById(id);
+	}
+
+	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> saveAccount(String id, CreateAccountDocument account) {
 		Map<String, Object> response = new HashMap<>();
 		
@@ -45,6 +50,7 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 		
 		Mono<ClientDocument> client = webClientBuilder.build().get()
 				.uri("http://localhost:8090/api/client/client/"+id)
+//				.uri("http://localhost:55457/client/"+id)
 				.retrieve()
 				.bodyToMono(ClientDocument.class);
 		
