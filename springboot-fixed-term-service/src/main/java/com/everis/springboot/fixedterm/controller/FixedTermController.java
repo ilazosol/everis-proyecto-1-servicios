@@ -27,5 +27,17 @@ public class FixedTermController {
 		System.out.println("Entro al metodo guardar cuenta");
 		return fixedTermService.createAccount(document);
 	}
+	
+	@PostMapping("/deposit/{id}/{amount}")
+	public Mono<ResponseEntity<Map<String,Object>>> deposit(@PathVariable String id, @PathVariable Double amount){
+		System.out.println("Entro al metodo guardar cuenta");
+		return fixedTermService.depositar(id, amount);
+	}
+	
+	@PostMapping("/retirement/{id}/{amount}")
+	public Mono<ResponseEntity<Map<String,Object>>> retirement(@PathVariable String id, @PathVariable Double amount){
+		System.out.println("Entro al metodo guardar cuenta");
+		return fixedTermService.retirar(id, amount);
+	}
 
 }
