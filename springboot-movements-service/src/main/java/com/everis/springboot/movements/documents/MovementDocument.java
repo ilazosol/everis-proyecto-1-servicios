@@ -1,4 +1,4 @@
-package com.everis.springboot.fixedterm.documents;
+package com.everis.springboot.movements.documents;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,17 +10,20 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "fixed_terms")
-public class FixedTermDocument {
+@Document(collection = "movements")
+public class MovementDocument {
 	
 	@Id
 	private String id;
 	
-	private Double saldo;
+	private String tipoMovimiento;
 	
-	private String fechaCreacion;
+	private String tipoProducto;
+	
+	private String fechaMovimiento;
+	
+	private String idCuenta;
 	
 	private String idCliente;
 	
-	private Integer diaRetiro;
 }

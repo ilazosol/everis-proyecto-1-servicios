@@ -18,9 +18,9 @@ public class FixedTermDocument {
 	
 	private Double saldo;
 	
-	private String fecha_creacion;
+	private String fechaCreacion;
 	
-	private String id_cliente;
+	private String idCliente;
 	
-	private Integer dia_retiro;
+	private Integer diaRetiro;
 }
