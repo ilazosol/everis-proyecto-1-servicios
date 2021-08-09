@@ -11,4 +11,6 @@ public interface CreateAccountService {
 	
 	Mono<ResponseEntity<Map<String,Object>>> saveAccount(String id, CreateAccountDocument account);
 
+	Mono<CreateAccountDocument> findAccountsById(String id);
+
 }
