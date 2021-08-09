@@ -1,5 +1,6 @@
 package com.everis.springboot.fixedterm.service.Impl;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,32 +29,46 @@ public class FixedTermServiceImpl implements FixedTermService {
 	@Override
 	public Mono<ResponseEntity<Map<String,Object>>> depositar(String idCuenta,Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
+		Calendar calendar = Calendar.getInstance();
 		
 		return fixedTermDao.findById(idCuenta).flatMap( c -> {
 			c.setSaldo(c.getSaldo() + cantidad);
-			return fixedTermDao.save(c).flatMap(acc -> {
-				response.put("mensaje", "Se hizo el deposito exitosamente");
-				response.put("cuenta", acc);
+			
+			if(calendar.get(Calendar.DAY_OF_MONTH) == c.getDia_retiro()) {
+				return fixedTermDao.save(c).flatMap(acc -> {
+					response.put("mensaje", "Se hizo el deposito exitosamente");
+					response.put("cuenta", acc);
+					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
+				});
+			}else {
+				response.put("mensaje", "No puede depositar porque no es el dia establecido");
 				return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-			});
+			}
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 
 	@Override
 	public Mono<ResponseEntity<Map<String,Object>>> retirar(String idCuenta,Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
+		Calendar calendar = Calendar.getInstance();
 		
 		return fixedTermDao.findById(idCuenta).flatMap( c -> {
-			if(c.getSaldo() - cantidad < 0) {
-				response.put("mensaje", "No puede realizar este retiro ya que no cuenta con el saldo suficiente");
-				return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-			}else {
-				c.setSaldo(c.getSaldo() - cantidad);
-				return fixedTermDao.save(c).flatMap(acc -> {
-					response.put("mensaje", "Se hizo el retiro exitosamente");
-					response.put("cuenta", acc);
+			
+			if(calendar.get(Calendar.DAY_OF_MONTH) == c.getDia_retiro()) {
+				if(c.getSaldo() - cantidad < 0) {
+					response.put("mensaje", "No puede realizar este retiro ya que no cuenta con el saldo suficiente");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
-				});
+				}else {
+					c.setSaldo(c.getSaldo() - cantidad);
+					return fixedTermDao.save(c).flatMap(acc -> {
+						response.put("mensaje", "Se hizo el retiro exitosamente");
+						response.put("cuenta", acc);
+						return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
+					});
+				}
+			}else {
+				response.put("mensaje", "No puede depositar porque no es el dia establecido");
+				return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 			}
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
