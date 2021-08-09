@@ -1,6 +1,7 @@
 package com.everis.springboot.saving.service.Impl;
 
 import com.everis.springboot.saving.dao.SavingDao;
+import com.everis.springboot.saving.model.ClientDocument;
 import com.everis.springboot.saving.model.ProductDocument;
 import com.everis.springboot.saving.model.SavingDocument;
 import com.everis.springboot.saving.service.SavingService;
@@ -28,36 +29,54 @@ public class SavingServiceImpl implements SavingService {
     public Mono<ResponseEntity<Map<String, Object>>> saveSaving(String id, SavingDocument saving) {
         Map<String, Object> response = new HashMap<>();
 
+//        Mono<ClientDocument> client = webClientBuilder.build().get()
+//                .uri("http://localhost:8090/api/client/client/"+id)
+//                .retrieve()
+//                .bodyToMono(ClientDocument.class);
+
         Mono<ProductDocument> product = webClientBuilder.build().get()
-                .uri("http://localhost:8090/api/product/product/"+id)
-//                .uri("http://localhost:65051/product/"+id)
+                .uri("http://localhost:8090/api/account/findAccount/"+id)
                 .retrieve()
                 .bodyToMono(ProductDocument.class);
-        System.out.println(product);
-        return savingDao.findByClient(id).collectList().flatMap( productos -> {
+
+        return savingDao.findByClient(id).collectList().flatMap( savings -> {
+
             Mono<ResponseEntity<Map<String,Object>>> res = product.flatMap(c -> {
-                        if (productos.size() == 0) {
+
+
+                if(!c.getAccount_type().equals("Cuenta de Ahorro")){
+                    response.put("mensaje", "No puede crear la cuenta, debido a que el cliente es empresarial");
+                    return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
+                }
+
+                Mono<ClientDocument> client = webClientBuilder.build().get()
+                .uri("http://localhost:8090/api/client/client/"+c.getClient())
+                .retrieve()
+                .bodyToMono(ClientDocument.class);
+
+                    Mono<ResponseEntity<Map<String,Object>>> resClient = client.flatMap(cli -> {
+
+                        if (savings.size() == 0 && cli.getClient_type().getDescription().equals("Personal")) {
                             saving.setProduct(c.getId());
                             saving.setClient(c.getClient());
-                            if(c.getAccount_type().equals("Personal")){
                                 return savingDao.save(saving).flatMap(p ->{
                                     response.put("savingSaved", p);
                                     response.put("mensaje", "Cuenta de Ahorros registrada con exito");
                                     return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
                                 });
-                            }else{
-                                response.put("mensaje", "No se puede guardar porque es tipo Empresarial");
-                                return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
-                            }
-
 
                         } else {
-                            response.put("mensaje", "No se puede guardar porque ya existe este producto");
+                            response.put("mensaje", "No se puede guardar porque ya existe este producto o no es un cliente Personal");
                             return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
                         }
                     });
 
+                    return resClient;
+            });
+
             return res;
+
+
         });
     }
 
