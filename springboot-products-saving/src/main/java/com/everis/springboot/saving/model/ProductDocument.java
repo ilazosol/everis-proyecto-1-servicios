@@ -13,7 +13,7 @@ public class ProductDocument {
     @Id
     private String id;
 
-    private ProductTypeDocument product_type;
+    private String account_type;
 
     private String client;
 

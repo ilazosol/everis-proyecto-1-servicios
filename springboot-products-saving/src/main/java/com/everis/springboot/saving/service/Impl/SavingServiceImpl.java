@@ -30,6 +30,7 @@ public class SavingServiceImpl implements SavingService {
 
         Mono<ProductDocument> product = webClientBuilder.build().get()
                 .uri("http://localhost:8090/api/product/product/"+id)
+//                .uri("http://localhost:65051/product/"+id)
                 .retrieve()
                 .bodyToMono(ProductDocument.class);
         System.out.println(product);
@@ -38,11 +39,17 @@ public class SavingServiceImpl implements SavingService {
                         if (productos.size() == 0) {
                             saving.setProduct(c.getId());
                             saving.setClient(c.getClient());
-                            return savingDao.save(saving).flatMap(p ->{
-                                response.put("savingSaved", p);
-                                response.put("mensaje", "Cuenta de Ahorros registrada con exito");
+                            if(c.getAccount_type().equals("Personal")){
+                                return savingDao.save(saving).flatMap(p ->{
+                                    response.put("savingSaved", p);
+                                    response.put("mensaje", "Cuenta de Ahorros registrada con exito");
+                                    return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
+                                });
+                            }else{
+                                response.put("mensaje", "No se puede guardar porque es tipo Empresarial");
                                 return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
-                            });
+                            }
+
 
                         } else {
                             response.put("mensaje", "No se puede guardar porque ya existe este producto");

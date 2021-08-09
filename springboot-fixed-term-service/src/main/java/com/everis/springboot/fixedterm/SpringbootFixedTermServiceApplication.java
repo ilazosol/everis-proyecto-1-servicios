@@ -1,16 +1,15 @@
-package com.everis.springboot.saving;
+package com.everis.springboot.fixedterm;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableEurekaClient
 @SpringBootApplication
-public class SavingApplication {
+public class SpringbootFixedTermServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SavingApplication.class, args);
+		SpringApplication.run(SpringbootFixedTermServiceApplication.class, args);
 	}
 
 }
