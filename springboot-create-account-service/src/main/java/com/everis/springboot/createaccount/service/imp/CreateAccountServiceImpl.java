@@ -46,7 +46,7 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 	public Mono<ResponseEntity<Map<String, Object>>> saveAccount(String id, CreateAccountDocument account) {
 		Map<String, Object> response = new HashMap<>();
 		
-		DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		
 		Mono<ClientDocument> client = webClientBuilder.build().get()
 				.uri("http://localhost:8090/api/client/client/"+id)

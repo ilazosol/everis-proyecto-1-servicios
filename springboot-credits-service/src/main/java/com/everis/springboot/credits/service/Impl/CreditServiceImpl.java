@@ -34,7 +34,7 @@ public class CreditServiceImpl implements CreditService {
 	public Mono<ResponseEntity<Map<String, Object>>> saveCredit(String id, CreditDocument credit) {
 		Map<String, Object> response = new HashMap<>();
 		
-		DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		
 		Mono<ClientDocument> client = webClientBuilder.build().get()
 				.uri("http://localhost:8090/api/client/client/"+id)
@@ -105,7 +105,7 @@ public class CreditServiceImpl implements CreditService {
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> payCredit(String idCredit, Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
-		DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 	
 		
 		return creditDao.findById(idCredit).flatMap( c -> {
@@ -150,7 +150,7 @@ public class CreditServiceImpl implements CreditService {
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> spendCredit(String idCredit, Double cantidad) {
 		Map<String, Object> response = new HashMap<>();
-		DateFormat dateFormat = new SimpleDateFormat("dd-mm-yyyy hh:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 	
 		
 		return creditDao.findById(idCredit).flatMap( c -> {
