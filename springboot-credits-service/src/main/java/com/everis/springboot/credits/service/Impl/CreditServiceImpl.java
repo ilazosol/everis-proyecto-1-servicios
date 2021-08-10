@@ -109,7 +109,7 @@ public class CreditServiceImpl implements CreditService {
 	
 		
 		return creditDao.findById(idCredit).flatMap( c -> {
-			c.setCreditPaid(c.getCreditPaid() + cantidad);
+			
 			
 			if(c.getCreditPaid() + cantidad > c.getCreditLimit()) {
 				response.put("mensaje", "No puede pagar mas del limite establecido del credito");
@@ -117,7 +117,12 @@ public class CreditServiceImpl implements CreditService {
 			}else if(c.getCreditPaid() + cantidad == c.getCreditLimit()) {
 				response.put("mensaje", "Ha terminado de pagar el credito");
 				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
+			}else if(c.getCreditPaid() == c.getCreditLimit()) {
+				response.put("mensaje", "Usted ya termino de pagar el credito");
+				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
 			}else {
+				c.setCreditPaid(c.getCreditPaid() + cantidad);
+				
 				return creditDao.save(c).flatMap(cre -> {
 					Date date = Calendar.getInstance().getTime();
 					MovementDocument movement = MovementDocument.builder()
