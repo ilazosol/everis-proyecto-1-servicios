@@ -111,14 +111,11 @@ public class CreditServiceImpl implements CreditService {
 		return creditDao.findById(idCredit).flatMap( c -> {
 			
 			
-			if(c.getCreditPaid() + cantidad > c.getCreditLimit()) {
-				response.put("mensaje", "No puede pagar mas del limite establecido del credito");
-				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
-			}else if(c.getCreditPaid() + cantidad == c.getCreditLimit()) {
-				response.put("mensaje", "Ha terminado de pagar el credito");
-				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
-			}else if(c.getCreditPaid() == c.getCreditLimit()) {
+			if(c.getCreditPaid() == c.getCreditLimit()) {
 				response.put("mensaje", "Usted ya termino de pagar el credito");
+				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
+			}else if( c.getCreditPaid() + cantidad > c.getCreditLimit()) {
+				response.put("mensaje", "No puede pagar mas del limite establecido del credito");
 				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
 			}else {
 				c.setCreditPaid(c.getCreditPaid() + cantidad);
