@@ -29,8 +29,8 @@ public class ClientController {
 	@Autowired
 	private ClientService clientService;
 	
-	@Value("${configuracion.autor.email}")
-	private String email;
+//	@Value("${configuracion.autor.email}")
+//	private String email;
 	
 	@PostMapping("/saveClient")
 	public Mono<ResponseEntity<?>> saveClient(@Valid @RequestBody ClientDocument client){
@@ -59,10 +59,10 @@ public class ClientController {
 		return clientService.deleteClient(id);
 	}
 	
-	@GetMapping("/getTextoActuator")
-	public String getTexto() {
-		return email;
-	}
+//	@GetMapping("/getTextoActuator")
+//	public String getTexto() {
+//		return email;
+//	}
 
 
 }
