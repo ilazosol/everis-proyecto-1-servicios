@@ -2,11 +2,10 @@ package com.everis.springboot.credits.service.Impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,8 @@ public class CreditServiceImpl implements CreditService {
 	@Autowired
 	private CreditDao creditDao;
 
+	private static final Logger log = LoggerFactory.getLogger(CreditServiceImpl.class);
+
 	@Override
 	public Mono<ResponseEntity<Map<String, Object>>> saveCredit(String id, CreditDocument credit) {
 		Map<String, Object> response = new HashMap<>();
@@ -49,6 +50,12 @@ public class CreditServiceImpl implements CreditService {
 				Integer creditCard = 0;
 				
 				System.out.println(c.toString());
+
+				if(!Arrays.asList("Cuenta de Ahorro", "Cuenta Corriente", "Cuenta Plazo Fijo").contains(credit.getCreditType())){
+					response.put("mensaje", "El tipo de credito no existe, comuniquese con el Administrador");
+					log.info("No existe el tipo de credito que esta intentando crear");
+					return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST));
+				}
 				
 				if(c.getClient_type().getDescription().equals("Personal") ) {
 					for (CreditDocument cre : credits) {
@@ -61,10 +68,12 @@ public class CreditServiceImpl implements CreditService {
 	
 						if(credit.getCreditType().equals("Credito Personal") && creditAccount>0) {
 							response.put("mensaje", "No puede crear el credito, un cliente personal no puede tener más de un credito");
+							log.info("No puede crear el credito, un cliente personal no puede tener más de un credito");
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 						}
 						if(credit.getCreditType().equals("Tarjeta de Credito") && creditCard>0) {
 							response.put("mensaje", "No puede crear la tarjeta, un cliente personal no puede tener más de una tarjeta de credito");
+							log.info("No puede crear la tarjeta, un cliente personal no puede tener más de una tarjeta de credito");
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 						}
 					}
@@ -76,11 +85,13 @@ public class CreditServiceImpl implements CreditService {
 						}
 						if(credit.getCreditType().equals("Tarjeta de Credito") && creditCard>0) {
 							response.put("mensaje", "No puede crear la tarjeta, un cliente empresarial no puede tener más de una tarjeta de credito");
+							log.info("No puede crear la tarjeta, un cliente empresarial no puede tener más de una tarjeta de credito");
 							return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 						}
 					}
 				}else if(!c.getClient_type().getDescription().equals("Empresarial") && !c.getClient_type().getDescription().equals("Personal")) {
 					response.put("mensaje", "El tipo de cliente incorrecto");
+					log.info("El tipo de cliente incorrecto");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.BAD_REQUEST));
 				}
 				Date date = Calendar.getInstance().getTime();
@@ -91,7 +102,8 @@ public class CreditServiceImpl implements CreditService {
 				
 				return creditDao.save(credit).flatMap( cre -> {
 					response.put("creditSaved", cre);
-					response.put("mensaje", "Credito registrada con exito");
+					response.put("mensaje", "Credito registrado con exito");
+					log.info("Credito registrado con exito");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK)); 
 				});
 				
@@ -113,9 +125,11 @@ public class CreditServiceImpl implements CreditService {
 			
 			if(c.getCreditPaid() == c.getCreditLimit()) {
 				response.put("mensaje", "Usted ya termino de pagar el credito");
+				log.info("Usted ya termino de pagar el credito");
 				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
 			}else if( c.getCreditPaid() + cantidad > c.getCreditLimit()) {
 				response.put("mensaje", "No puede pagar mas del limite establecido del credito");
+				log.info("No puede pagar mas del limite establecido del credito");
 				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
 			}else {
 				c.setCreditPaid(c.getCreditPaid() + cantidad);
@@ -124,10 +138,7 @@ public class CreditServiceImpl implements CreditService {
 					Date date = Calendar.getInstance().getTime();
 					MovementDocument movement = MovementDocument.builder()
 							.tipoMovimiento("Pago Credito")
-							.tipoProducto(
-									cre.getCreditType().equals("Credito Personal") ? "Credito Personal" : 
-									cre.getCreditType().equals("Credito Empresarial") ? "Credito Empresarial" :
-									"Tarjeta de Credito")
+							.tipoProducto(cre.getCreditType())
 							.fechaMovimiento(dateFormat.format(date))
 							.idCuenta(idCredit)
 							.idCliente(cre.getIdClient())
@@ -141,6 +152,7 @@ public class CreditServiceImpl implements CreditService {
 					
 					response.put("mensaje", "Se hizo el pago del credito correctamente");
 					response.put("credito", cre);
+					log.info("Se hizo el pago del credito correctamente");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 				});
 			}
@@ -156,6 +168,7 @@ public class CreditServiceImpl implements CreditService {
 		return creditDao.findById(idCredit).flatMap( c -> {
 			if(c.getBalance() - cantidad < 0) {
 				response.put("mensaje", "No puede gastar más del crédito dado");
+				log.info("No puede gastar más del crédito dado");
 				return Mono.just(new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK));
 			}else {
 				c.setBalance(c.getBalance() - cantidad);
@@ -164,10 +177,7 @@ public class CreditServiceImpl implements CreditService {
 					Date date = Calendar.getInstance().getTime();
 					MovementDocument movement = MovementDocument.builder()
 							.tipoMovimiento("Consumo Credito")
-							.tipoProducto(
-									cre.getCreditType().equals("Credito Personal") ? "Credito Personal" : 
-									cre.getCreditType().equals("Credito Empresarial") ? "Credito Empresarial" :
-									"Tarjeta de Credito")
+							.tipoProducto(cre.getCreditType())
 							.fechaMovimiento(dateFormat.format(date))
 							.idCuenta(idCredit)
 							.idCliente(cre.getIdClient())
@@ -181,6 +191,7 @@ public class CreditServiceImpl implements CreditService {
 					
 					response.put("mensaje", "Se hizo el gasto del credito correctamente");
 					response.put("credito", cre);
+					log.info("Se hizo el gasto del credito correctamente");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 				});
 			}
@@ -195,6 +206,7 @@ public class CreditServiceImpl implements CreditService {
 			
 			
 			response.put("mensaje", "El saldo del credito es: S/."+c.getBalance());
+			log.info("El saldo del credito es: S/."+c.getBalance());
 			return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 			
 		}).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));

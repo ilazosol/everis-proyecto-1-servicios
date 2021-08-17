@@ -29,11 +29,6 @@ public class SavingServiceImpl implements SavingService {
     public Mono<ResponseEntity<Map<String, Object>>> saveSaving(String id, SavingDocument saving) {
         Map<String, Object> response = new HashMap<>();
 
-//        Mono<ClientDocument> client = webClientBuilder.build().get()
-//                .uri("http://localhost:8090/api/client/client/"+id)
-//                .retrieve()
-//                .bodyToMono(ClientDocument.class);
-
         Mono<ProductDocument> product = webClientBuilder.build().get()
                 .uri("http://localhost:8090/api/account/findAccount/"+id)
                 .retrieve()

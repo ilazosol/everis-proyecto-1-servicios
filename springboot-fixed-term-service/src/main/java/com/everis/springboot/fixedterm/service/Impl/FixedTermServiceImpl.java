@@ -86,9 +86,7 @@ public class FixedTermServiceImpl implements FixedTermService {
 					response.put("mensaje", "No puede realizar este retiro ya que no cuenta con el saldo suficiente");
 					return Mono.just(new ResponseEntity<Map<String,Object>>(response, HttpStatus.OK));
 				}else {
-					
-					
-					
+
 					c.setSaldo(c.getSaldo() - cantidad);
 					return fixedTermDao.save(c).flatMap(acc -> {
 						

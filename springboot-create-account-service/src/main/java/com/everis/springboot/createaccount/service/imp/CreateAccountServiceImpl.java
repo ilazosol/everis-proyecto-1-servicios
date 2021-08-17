@@ -66,7 +66,6 @@ public class CreateAccountServiceImpl implements CreateAccountService {
 				
 //				System.out.println(c.toString());
 
-				String[] tipos = {"Cuenta de Ahorro", "Cuenta Corriente", "Cuenta Plazo Fijo"};
 				if(!Arrays.asList("Cuenta de Ahorro", "Cuenta Corriente", "Cuenta Plazo Fijo").contains(account.getAccount_type())){
 					response.put("mensaje", "El tipo de cuenta no existe, comuniquese con el Administrador");
 					log.info("No existe el tipo de cuenta que esta intentando crear");

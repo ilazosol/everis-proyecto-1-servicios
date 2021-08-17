@@ -22,5 +22,7 @@ public class MovementDocument {
 	private String idCuenta;
 	
 	private String idCliente;
+
+	private double comissionMount;
 	
 }
